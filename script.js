@@ -13,6 +13,7 @@ function main() {
         'senac.png'
     ]
 
+    // função para embaralhar o array
     function embaralharArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * i);
@@ -28,7 +29,7 @@ function main() {
     // embaralhando as imagens
     const imagensProntas = embaralharArray(paresImagens);
 
-
+    // selecinando a div pai que receberá as cartas
     const tabuleiro = document.getElementById('tabuleiro');
 
     // Renderização dinâmica das cartas 
@@ -46,50 +47,46 @@ function main() {
 }
 
 // função para revelar a imagem
-let cardSave = '';
+let cardSave = ''; // Guarda o ID para comparação
+let primeiraCarta = null; // Guarda a referência da primeira carta clicada
+let trancaMaisCarta = false; // Impede que o usuário clique em mais de duas cartas
+let contagem = 0;
 
 function revelar(container) {
+    // Trava de segurança: Se o usuário clicar na carta que tá aberta ou mais de uma vez, ignore.
+    if (container === primeiraCarta || trancaMaisCarta) {
+        return;
+    }
 
     const interrog = container.querySelector("#btn-interrog");
     const target = container.querySelector(".target");
 
-    if (interrog && target && cardSave === '') {
+    if (cardSave === '') {
+        cardSave = target.id;
+        primeiraCarta = container;
+
         interrog.classList.add("hidden");
         target.classList.remove("hidden");
 
-        cardSave = target.id;
-    } else if (cardSave !== '') {
+    } else {
+        // ACERTOU
         if (cardSave === target.id) {
             interrog.classList.add("hidden");
             target.classList.remove("hidden");
-            setTimeout(() => {
-                alert("Parabéns, você acertou!");
 
-                const interrogAll = document.querySelectorAll(".btn-interrog");
-                const targetAll = document.querySelectorAll(".target");
-
-                cardSave = '';
-
-                targetAll.forEach(target => {
-                    target.classList.add("hidden");
-                });
-
-                interrogAll.forEach(interrog => {
-                    interrog.classList.remove("hidden");
-                });
-
-            }, 2000);
-            
             cardSave = '';
+            primeiraCarta = null;
+
         } else {
+            // ERROU
             interrog.classList.add("hidden");
             target.classList.remove("hidden");
+            trancaMaisCarta = true;
+
 
             setTimeout(() => {
                 const interrogAll = document.querySelectorAll(".btn-interrog");
                 const targetAll = document.querySelectorAll(".target");
-
-                cardSave = '';
 
                 targetAll.forEach(target => {
                     target.classList.add("hidden");
@@ -99,11 +96,13 @@ function revelar(container) {
                     interrog.classList.remove("hidden");
                 });
 
-            }, 1200);
+                cardSave = '';
+                primeiraCarta = null;
+                trancaMaisCarta = false;
+
+            }, 1200)
         }
     }
-
-
 }
 
 main();
